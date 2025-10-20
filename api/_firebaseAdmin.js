@@ -7,6 +7,7 @@ import admin from "firebase-admin";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 loadEnv();
 loadEnv({ path: join(__dirname, ".env") });
+loadEnv({ path: join(__dirname, "../server/.env") });
 
 let app;
 if (!global.__FIREBASE_ADMIN_APP__) {
