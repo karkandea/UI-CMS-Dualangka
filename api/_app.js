@@ -5,13 +5,15 @@ import articlesRouter from "./routes/articles.js"; // PAKAI router lama lo
 
 // origin whitelist untuk dev+preview+prod
 const allowed = new Set([
-  "http://localhost:5173",  // web dev
-  "http://localhost:5174",  // cms dev
-  "http://localhost:5175",  // alt dev port
-  "http://localhost:5176",  // alt dev port
-  "http://localhost:5177",  // alt dev port
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5176",
+  "http://localhost:5177",
   "https://www.dualangka.com",
+  "https://cms-dualangka.vercel.app",   // add this (and any other domains you’ll use)
 ]);
+
 
 function isAllowedOrigin(origin) {
   if (!origin) return true;                 // server-to-server
