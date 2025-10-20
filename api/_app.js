@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./_db.js";
-import articlesRouter from "../server/routes/articles.js"; // PAKAI router lama lo
+import articlesRouter from "./routes/articles.js"; // PAKAI router lama lo
 
 // origin whitelist untuk dev+preview+prod
 const allowed = new Set([
@@ -50,7 +50,7 @@ export function createApp() {
   // alias untuk akses root (misal https://cms.../health)
   app.get("/health", healthResponder);
   // default root response (misal GET /api)
-  app.get("/", (_req, res) => {
+  app.get("/api", (_req, res) => {
     res.json({ ok: true, service: "dualangka-cms-api" });
   });
 
@@ -58,7 +58,7 @@ export function createApp() {
   app.use("/api/articles", articlesRouter);
 
   // 4) error handler sederhana
-  app.use((err, _req, res, _next) => {
+  app.use((err, _req, res, next) => {
     console.error("ERR:", err?.message || err);
     res.status(500).json({ ok:false, error: err?.message || "Internal error" });
   });
