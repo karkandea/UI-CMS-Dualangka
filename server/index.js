@@ -2,8 +2,8 @@
 import { config as loadEnv } from "dotenv";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { createApp } from "../src/api/_app.js";
-import { connectDB } from "../src/api/_db.js";
+import { createApp } from "../api/_app.js";
+import { connectDB } from "../api/_db.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Load root .env (if present), then overlay server/.env so server-specific vars win.
