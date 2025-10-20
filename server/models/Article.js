@@ -8,6 +8,7 @@ const ArticleSchema = new mongoose.Schema({
   tags:        { type: [String], default: [] },
   status:      { type: String, enum: ["Draft", "Published"], default: "Draft" },
   publishedAt: { type: Date, default: null },
+  content:     { type: String, default: "" }, // isi artikel (HTML/Markdown/plain text)
 }, { timestamps: true });
 
 export default mongoose.model('Article', ArticleSchema);

@@ -3,7 +3,9 @@
 // maka import firebase seharusnya "../firebase" (BUKAN "../../firebase")
 import { auth } from '../../firebase'
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/+$/, '');
+console.log('[CMS API BASE]', BASE); // debug sementara
 
 export async function apiFetch(path, { method = 'GET', body, headers = {} } = {}) {
   // siapkan headers dasar

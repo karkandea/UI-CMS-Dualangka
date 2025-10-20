@@ -5,18 +5,28 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "node server/index.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "firebase": "^12.4.0",
+    "firebase-admin": "^13.5.0",
+    "mongoose": "^8.19.1",
     "motion": "^12.23.24",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router": "^7.9.4",
     "react-router-dom": "^7.9.4",
+    "serverless-http": "^4.0.0",
     "tailwindcss": "^4.1.14"
   },
   "devDependencies": {

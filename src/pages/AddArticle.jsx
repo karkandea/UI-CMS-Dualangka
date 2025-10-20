@@ -9,6 +9,7 @@ export default function AddArticle() {
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');            // NEW: content
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState([]);
   const [isPublished, setIsPublished] = useState(false);
@@ -51,6 +52,7 @@ export default function AddArticle() {
         slug,
         title,
         description,
+        content,                         // NEW: kirim content
         tags,
         status: isPublished ? 'Published' : 'Draft',
         coverUrl,
@@ -93,6 +95,15 @@ export default function AddArticle() {
         rows={4}
         value={description} onChange={(e)=>setDescription(e.target.value)}
         placeholder="Ringkasan artikel"
+      />
+
+      {/* NEW: Content */}
+      <label className="block text-sm mb-1 text-black">Isi Artikel</label>
+      <textarea
+        className="w-full border rounded p-2 mb-4"
+        rows={10}
+        value={content} onChange={(e)=>setContent(e.target.value)}
+        placeholder="Tulis isi artikel di sini (teks biasa/markdown/HTML sesuai kebutuhan)"
       />
 
       <label className="block text-sm mb-1 text-black">Tags</label>

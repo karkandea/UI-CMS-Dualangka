@@ -32,13 +32,13 @@ export default function ManageArticles() {
         <table className="w-full text-sm text-left">
           <thead className="text-xs uppercase bg-gray-50">
             <tr>
-              <th className="px-6 py-3">Thumbnail</th>
-              <th className="px-6 py-3">Title</th>
-              <th className="px-6 py-3">Slug</th>
-              <th className="px-6 py-3">Tags</th>
-              <th className="px-6 py-3">Date Posted</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3">Action</th>
+              <th className="text-black px-6 py-3">Thumbnail</th>
+              <th className="text-black px-6 py-3">Title</th>
+              <th className="text-black px-6 py-3">Slug</th>
+              <th className="text-black px-6 py-3">Tags</th>
+              <th className="text-black px-6 py-3">Date Posted</th>
+              <th className="text-black px-6 py-3">Status</th>
+              <th className="text-black px-6 py-3">Action</th>
             </tr>
           </thead>
           <tbody className="text-black">

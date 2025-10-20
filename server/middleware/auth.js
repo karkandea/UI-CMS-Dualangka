@@ -1,4 +1,28 @@
+// DULU
+// import admin from "firebase-admin";
+
+// SEKARANG
+import { admin } from "../_firebaseAdmin.js";
+
+export async function requireAuth(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization || "";
+    const idToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (!idToken) return res.status(401).json({ ok: false, error: "NO_TOKEN" });
+
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    req.user = decoded; // bisa dipakai untuk cek role
+    next();
+  } catch (e) {
+    console.error("AUTH ERR:", e?.message || e);
+    res.status(401).json({ ok: false, error: "INVALID_TOKEN" });
+  }
+}
+
+
+/*
 import admin from 'firebase-admin';
+
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -23,3 +47,4 @@ export async function verifyFirebaseIdToken(req, res, next) {
     return res.status(401).json({ message: 'Invalid token' });
   }
 }
+*/

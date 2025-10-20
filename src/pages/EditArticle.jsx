@@ -17,6 +17,7 @@ export default function EditArticle() {
   const [title, setTitle] = useState('');
   const [slugState, setSlugState] = useState('');
   const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');           // <— NEW
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState([]);
   const [isPublished, setIsPublished] = useState(false);
@@ -34,6 +35,7 @@ export default function EditArticle() {
         setTitle(data.title || '');
         setSlugState(data.slug || '');
         setDescription(data.description || '');
+        setContent(data.content || '');                 // <— NEW
         setTags(data.tags || []);
         setIsPublished(data.status === 'Published');
         setCoverUrl(data.coverUrl || '');
@@ -66,41 +68,42 @@ export default function EditArticle() {
     setCoverPreview(URL.createObjectURL(f));
   }
 
-  async function onSave(e) {
-    e?.preventDefault?.();
-    if (!canSubmit) return;
-    setSaving(true);
-    try {
-      let newCoverUrl = coverUrl;
-      if (coverFile) {
-        newCoverUrl = await uploadArticleCover(slugState, coverFile);
-      }
-
-      const payload = {
-        title,
-        description,
-        tags,
-        status: isPublished ? 'Published' : 'Draft',
-        coverUrl: newCoverUrl,
-      };
-
-      const updated = await apiFetch(`/api/articles/${slug}`, {
-        method: 'PUT',
-        body: payload,
-      });
-
-      setCoverUrl(updated.coverUrl || newCoverUrl);
-      alert('Perubahan tersimpan');
-      if (updated.slug && updated.slug !== slug) {
-        navigate(`/articles/edit/${updated.slug}`, { replace: true });
-      }
-    } catch (e) {
-      console.error(e);
-      alert(e.message || 'Gagal menyimpan');
-    } finally {
-      setSaving(false);
+async function onSave(e) {
+  e?.preventDefault?.();
+  if (!canSubmit) return;
+  setSaving(true);
+  try {
+    let newCoverUrl = coverUrl;
+    if (coverFile) {
+      newCoverUrl = await uploadArticleCover(slugState, coverFile);
     }
+
+    const payload = {
+      title,
+      description,
+      content,
+      tags,
+      status: isPublished ? 'Published' : 'Draft',
+      coverUrl: newCoverUrl,
+    };
+
+    await apiFetch(`/api/articles/${slug}`, {
+      method: 'PUT',
+      body: payload,
+    });
+
+    // --- success → balik ke Manage ---
+    alert('Perubahan tersimpan');
+    navigate('/articles/manage', { replace: true });
+    return; // penting: hentikan eksekusi lanjutan
+  } catch (e) {
+    console.error(e);
+    alert(e.message || 'Gagal menyimpan');
+  } finally {
+    setSaving(false);
   }
+}
+
 
   async function onDelete() {
     const ok = confirm('Yakin hapus artikel ini? Aksi tidak bisa dibatalkan.');
@@ -167,6 +170,16 @@ export default function EditArticle() {
         value={description}
         onChange={(e)=>setDescription(e.target.value)}
         placeholder="Ringkasan artikel"
+      />
+
+      {/* NEW: Content */}
+      <label className="block text-sm mb-1 text-black">Isi Artikel</label>
+      <textarea
+        className="w-full border rounded p-2 mb-4"
+        rows={10}
+        value={content}
+        onChange={(e)=>setContent(e.target.value)}
+        placeholder="Tulis isi artikel"
       />
 
       <label className="block text-sm mb-1 text-black">Tags</label>
