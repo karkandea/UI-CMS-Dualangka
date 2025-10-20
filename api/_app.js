@@ -8,6 +8,8 @@ const allowed = new Set([
   "http://localhost:5173",  // web dev
   "http://localhost:5174",  // cms dev
   "http://localhost:5175",  // alt dev port
+  "http://localhost:5176",  // alt dev port
+  "http://localhost:5177",  // alt dev port
   "https://www.dualangka.com",
 ]);
 
@@ -40,9 +42,16 @@ export function createApp() {
     catch (e) { next(e); }
   });
 
-  // 2) healthcheck (serverless & lokal)
-  app.get("/api/health", (_req, res) => {
+  const healthResponder = (_req, res) => {
     res.json({ ok: true, ts: Date.now() });
+  };
+  // 2) healthcheck (serverless & lokal)
+  app.get("/api/health", healthResponder);
+  // alias untuk akses root (misal https://cms.../health)
+  app.get("/health", healthResponder);
+  // default root response (misal GET /api)
+  app.get("/", (_req, res) => {
+    res.json({ ok: true, service: "dualangka-cms-api" });
   });
 
   // 3) mount router lama
