@@ -1,12 +1,13 @@
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./_db.js";
-import articlesRouter from "../server/routes/articles.js"; // PAKAI router lama lo
+import articlesRouter from "../../server/routes/articles.js"; // PAKAI router lama lo
 
 // origin whitelist untuk dev+preview+prod
 const allowed = new Set([
   "http://localhost:5173",  // web dev
   "http://localhost:5174",  // cms dev
+  "http://localhost:5175",  // alt dev port
   "https://www.dualangka.com",
 ]);
 

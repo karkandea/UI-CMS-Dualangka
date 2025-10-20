@@ -1,7 +1,14 @@
 // cms/server/index.js  (LOKAL RUNNER)
-import "dotenv/config";
-import { createApp } from "../api/_app.js";
-import { connectDB } from "../api/_db.js";
+import { config as loadEnv } from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { createApp } from "../src/api/_app.js";
+import { connectDB } from "../src/api/_db.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load root .env (if present), then overlay server/.env so server-specific vars win.
+loadEnv();
+loadEnv({ path: join(__dirname, ".env") });
 
 const app = createApp();
 

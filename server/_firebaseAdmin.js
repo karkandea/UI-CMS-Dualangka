@@ -1,4 +1,12 @@
+import { config as loadEnv } from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 import admin from "firebase-admin";
+
+// Ensure both root .env and server/.env are loaded before we read any vars.
+const __dirname = dirname(fileURLToPath(import.meta.url));
+loadEnv();
+loadEnv({ path: join(__dirname, ".env") });
 
 let app;
 if (!global.__FIREBASE_ADMIN_APP__) {

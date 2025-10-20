@@ -43,7 +43,7 @@ const ManageWork = () => {
     const run = async () => {
       try {
         // kalau sudah sign-in anonim di firebase.js, boleh hapus 2 baris di bawah
-        const auth = getAuth();
+
 
         // ambil semua works, urut terbaru (butuh index kalau ada filter/order gabungan)
         const qRef = query(collection(db, "works"), orderBy("postedAt", "desc"));

@@ -124,19 +124,7 @@ const onDragEnterBlock = (targetId) => {
   });
 };
 
-  const onDropBlock = (targetId) => {
-    if (!dragId || dragId === targetId) return;
-    setBlocks(prev => {
-      const srcIdx = prev.findIndex(b => b.id === dragId);
-      const dstIdx = prev.findIndex(b => b.id === targetId);
-      if (srcIdx === -1 || dstIdx === -1) return prev;
-      const next = [...prev];
-      const [moved] = next.splice(srcIdx, 1);
-      next.splice(dstIdx, 0, moved);
-      return next;
-    });
-    setDragId(null);
-  };
+
 
   // Sisa slot global
   const remaining = 10 - imagesUsed;

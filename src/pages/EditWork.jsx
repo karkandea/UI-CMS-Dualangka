@@ -273,15 +273,7 @@ const handleDelete = async () => {
     };
     reader.readAsDataURL(file);
   };
-  const removeImage = (blockId, imgIdx) => {
-    setBlocks((prev) =>
-      prev.map((block) =>
-        block.id === blockId
-          ? { ...block, images: block.images.map((img, i) => (i === imgIdx ? null : img)) }
-          : block
-      )
-    );
-  };
+
 
   // drag & drop reorder (mirip kode lo)
   const onDragStartBlock = (e, id) => {
