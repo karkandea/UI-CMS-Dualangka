@@ -5,8 +5,9 @@ import { auth } from '../../firebase';
 
 // BASE: ambil dari VITE_API_URL (contoh: http://localhost:4000 atau https://cms-dualangka.vercel.app)
 // hapus trailing slash supaya gabungannya bersih
-const RAW_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-const BASE = RAW_BASE.replace(/\/+$/, '');
+const RAW_BASE = import.meta.env.VITE_API_URL || 'https://cms-dualangka.vercel.app';
+const BASE = import.meta.env.VITE_API_URL?.replace(/\/+$/, '');
+if (!BASE) throw new Error('VITE_API_URL is required');
 console.log('[CMS API BASE]', BASE); // debug
 
 export async function apiFetch(path, { method = 'GET', body, headers = {} } = {}) {

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { db } from "../../firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 
 const ManageWork = () => {
@@ -12,7 +12,8 @@ const ManageWork = () => {
   useEffect(() => {
   const auth = getAuth();
 
-
+  // 1) pastikan login (kalau sudah login anonim global di firebase.js, bagian signIn ini boleh dihapus)
+  signInAnonymously(auth).catch((e) => console.warn("anon sign-in:", e?.code));
 
   // 2) tunggu auth siap
   const unsub = onAuthStateChanged(auth, async (user) => {
@@ -43,7 +44,8 @@ const ManageWork = () => {
     const run = async () => {
       try {
         // kalau sudah sign-in anonim di firebase.js, boleh hapus 2 baris di bawah
-
+        const auth = getAuth();
+        await signInAnonymously(auth);
 
         // ambil semua works, urut terbaru (butuh index kalau ada filter/order gabungan)
         const qRef = query(collection(db, "works"), orderBy("postedAt", "desc"));
