@@ -23,8 +23,9 @@ function isAllowedOrigin(origin) {
   return false;
 }
 
-export function createApp() {
-  const app = express();
+export function createApp(expressFactory = null) {
+  const expressLib = expressFactory ?? express;
+  const app = expressLib();
 
   app.use(cors({
     origin: (origin, cb) => {
@@ -36,7 +37,7 @@ export function createApp() {
     allowedHeaders: ["Content-Type","Authorization"],
   }));
 
-  app.use(express.json());
+  app.use(expressLib.json());
 
   // 1) konek DB sekali per request (sebelum router)
   app.use(async (req, _res, next) => {
