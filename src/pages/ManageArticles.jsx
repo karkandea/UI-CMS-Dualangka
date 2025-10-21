@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
 
+const REMOTE_API_BASE = 'https://cms-dualangka.vercel.app/api';
+
 export default function ManageArticles() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ export default function ManageArticles() {
   useEffect(()=>{
     (async ()=>{
       try {
-        const res = await apiFetch('/api/articles?limit=100');
+        const res = await apiFetch(`${REMOTE_API_BASE}/articles?limit=100`);
         const list = Array.isArray(res) ? res : (res?.data || []);
         setRows(list);
       } catch (e) {

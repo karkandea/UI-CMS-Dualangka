@@ -1,8 +1,20 @@
 import './App.css'
 import Sidebar from './component/Sidebar'
 import { Outlet } from 'react-router-dom'
+// import { getAuth } from "firebase/auth";
+// import { useEffect } from 'react';
+
+
 
 function App() {
+  /*
+  useEffect(() => {
+  const auth = getAuth();
+  auth.currentUser?.getIdToken(true).then((token) => {
+    console.log("🔥 FIREBASE TOKEN:", token);
+  });
+}, []);
+*/
   return (
     <>
     <div className='flex'>

@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { uploadArticleCover } from '../lib/uploadArticleCover';
 import { apiFetch } from '../lib/api';
 
+const REMOTE_API_BASE = 'https://cms-dualangka.vercel.app/api';
+
 const MAX_MB = 2;
 const TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 
@@ -57,7 +59,7 @@ export default function AddArticle() {
         status: isPublished ? 'Published' : 'Draft',
         coverUrl,
       };
-      const created = await apiFetch('/api/articles', {
+      const created = await apiFetch(`${REMOTE_API_BASE}/articles`, {
         method: 'POST',
         body: payload
       });

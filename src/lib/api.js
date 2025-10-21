@@ -3,12 +3,12 @@
 // maka import firebase seharusnya "../firebase" (BUKAN "../../firebase")
 import { auth } from '../../firebase';
 
-// BASE: ambil dari VITE_API_URL (contoh: http://localhost:4000 atau https://cms-dualangka.vercel.app)
-// hapus trailing slash supaya gabungannya bersih
-const RAW_BASE = import.meta.env.VITE_API_URL || 'https://cms-dualangka.vercel.app';
-const BASE = import.meta.env.VITE_API_URL?.replace(/\/+$/, '');
+// BASE: ambil dari VITE_API_URL (contoh: http://localhost:4000/api atau https://cms-dualangka.vercel.app/api)
+// gunakan fallback production bila env kosong, dan hapus trailing slash supaya gabungannya bersih
+const RAW_BASE = (import.meta.env.VITE_API_URL || 'https://cms-dualangka.vercel.app/api').trim();
+const BASE = RAW_BASE.replace(/\/+$/, '');
 if (!BASE) throw new Error('VITE_API_URL is required');
-console.log('[CMS API BASE]', BASE); // debug
+const BASE_HAS_API_SEGMENT = BASE.endsWith('/api');
 
 export async function apiFetch(path, { method = 'GET', body, headers = {} } = {}) {
   // siapkan headers dasar
@@ -27,7 +27,7 @@ export async function apiFetch(path, { method = 'GET', body, headers = {} } = {}
   // rakit URL (boleh full atau relative). Pastikan ada 1 slash di tengah.
   const url = path.startsWith('http')
     ? path
-    : `${BASE}${path.startsWith('/') ? path : `/${path}`}`;
+    : buildUrl(path);
 
   let res;
   try {
@@ -50,4 +50,14 @@ export async function apiFetch(path, { method = 'GET', body, headers = {} } = {}
   }
 
   return data;
+}
+
+function buildUrl(path) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (!BASE_HAS_API_SEGMENT) return `${BASE}${normalizedPath}`;
+  if (normalizedPath === '/api') return BASE;
+  if (normalizedPath.startsWith('/api/')) {
+    return `${BASE}${normalizedPath.slice(4)}`;
+  }
+  return `${BASE}${normalizedPath}`;
 }

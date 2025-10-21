@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
 import { uploadArticleCover } from '../lib/uploadArticleCover';
 
+const REMOTE_API_BASE = 'https://cms-dualangka.vercel.app/api';
+
 const MAX_MB = 5;
 const TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 
@@ -30,7 +32,7 @@ export default function EditArticle() {
     let on = true;
     (async () => {
       try {
-        const data = await apiFetch(`/api/articles/${slug}`);
+        const data = await apiFetch(`${REMOTE_API_BASE}/articles/${slug}`);
         if (!on) return;
         setTitle(data.title || '');
         setSlugState(data.slug || '');
@@ -87,7 +89,7 @@ async function onSave(e) {
       coverUrl: newCoverUrl,
     };
 
-    await apiFetch(`/api/articles/${slug}`, {
+    await apiFetch(`${REMOTE_API_BASE}/articles/${slug}`, {
       method: 'PUT',
       body: payload,
     });
@@ -110,7 +112,7 @@ async function onSave(e) {
     if (!ok) return;
     setDeleting(true);
     try {
-      await apiFetch(`/api/articles/${slug}`, { method: 'DELETE' });
+      await apiFetch(`${REMOTE_API_BASE}/articles/${slug}`, { method: 'DELETE' });
       alert('Artikel dihapus');
       navigate('/articles/manage', { replace: true });
     } catch (e) {
