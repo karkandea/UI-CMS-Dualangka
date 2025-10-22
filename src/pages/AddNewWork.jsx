@@ -3,6 +3,7 @@ import { doc, setDoc, serverTimestamp, collection, getDocs } from "firebase/fire
 import {ref as sref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage, db } from "../../firebase";
 import { Icon } from "@iconify/react";
+import { useNavigate } from "react-router-dom";
 
 
 const MAX_IMAGE_SIZE_MB = 2;
@@ -10,6 +11,7 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 
 const AddNewWork = () => {
+  const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
 
@@ -279,7 +281,7 @@ const onSubmit = async (e) => {
     await setDoc(doc(db, "works", slug), payload, { merge: true });
 
     alert(`Saved as ${status}`);
-    // opsional: reset form / navigate
+    navigate("/work/manage");
   } catch (err) {
     console.error(err);
     alert("Gagal menyimpan. Cek console.");
