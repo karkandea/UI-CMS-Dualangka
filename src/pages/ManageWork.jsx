@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { db } from "../../firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { useState, useEffect } from "react";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../../firebase";
 
 
 const ManageWork = () => {
@@ -10,44 +10,17 @@ const ManageWork = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const auth = getAuth();
+    let active = true;
 
-  // 1) pastikan login (kalau sudah login anonim global di firebase.js, bagian signIn ini boleh dihapus)
-  signInAnonymously(auth).catch((e) => console.warn("anon sign-in:", e?.code));
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+      if (!user) {
+        setWorks([]);
+        setLoading(false);
+        return;
+      }
 
-  // 2) tunggu auth siap
-  const unsub = onAuthStateChanged(auth, async (user) => {
-    console.log("auth user:", user?.uid || "(none)");
-    if (!user) return; // belum siap, tunggu
-
-    try {
-      // sementara: HAPUS orderBy kalau mau pastikan rules ok dulu
-      // const qRef = collection(db, "works");
-      const qRef = query(collection(db, "works"), orderBy("postedAt", "desc"));
-      const snap = await getDocs(qRef);
-
-      console.log("docs count:", snap.size);
-      const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      console.log("rows:", rows);
-      setWorks(rows);
-    } catch (err) {
-      console.error("fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  return () => unsub();
-}, []);
-
-  useEffect(() => {
-    const run = async () => {
       try {
-        // kalau sudah sign-in anonim di firebase.js, boleh hapus 2 baris di bawah
-        const auth = getAuth();
-        await signInAnonymously(auth);
-
-        // ambil semua works, urut terbaru (butuh index kalau ada filter/order gabungan)
         const qRef = query(collection(db, "works"), orderBy("postedAt", "desc"));
         const snap = await getDocs(qRef);
         const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -55,10 +28,14 @@ const ManageWork = () => {
       } catch (err) {
         console.error("Error fetching works:", err);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
+    });
+
+    return () => {
+      active = false;
+      unsub();
     };
-    run();
   }, []);
 
   const formatDate = (ts) => {
