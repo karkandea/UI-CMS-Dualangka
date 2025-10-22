@@ -12,7 +12,9 @@ export default function ManageArticles() {
     (async ()=>{
       try {
         const res = await apiFetch(`${REMOTE_API_BASE}/articles?limit=100`);
-        const list = Array.isArray(res) ? res : (res?.data || []);
+        const list = Array.isArray(res)
+          ? res
+          : res?.items || res?.data || res?.rows || [];
         setRows(list);
       } catch (e) {
         console.error(e);
@@ -23,7 +25,32 @@ export default function ManageArticles() {
     })();
   },[]);
 
-  const fmt = (d) => d ? new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) : '-';
+  const fmt = (d) => d ? new Date(d).toLocaleDateString('en-US', { day:'2-digit', month:'short', year:'numeric' }) : '-';
+
+  const resolveTitle = (article) => {
+    const raw = article?.title;
+    if (typeof raw === 'string') return raw;
+    if (raw && typeof raw === 'object') {
+      return raw.en || raw.id || article?.slug || '';
+    }
+    return article?.slug || '';
+  };
+
+  const resolveTags = (article) => {
+    const raw = article?.tags;
+    if (Array.isArray(raw)) return raw;
+    if (raw && typeof raw === 'object') {
+      if (Array.isArray(raw.en) && raw.en.length) return raw.en;
+      if (Array.isArray(raw.id)) return raw.id;
+    }
+    return [];
+  };
+
+  const resolveStatus = (status) => {
+    if (!status) return '-';
+    const lower = String(status).toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  };
 
   if (loading) return <p className="text-sm text-black">Loading…</p>;
 
@@ -48,21 +75,21 @@ export default function ManageArticles() {
               <tr key={a._id} className="odd:bg-white even:bg-gray-50 border-b">
                 <td className="px-6 py-4 align-middle">
                   <div className="w-44 aspect-[16/9] overflow-hidden rounded-lg bg-gray-100">
-                    <img src={a.coverUrl || '/fallback.jpg'} alt={a.title} className="w-full h-full object-cover" />
+                    <img src={a.coverUrl || '/fallback.jpg'} alt={resolveTitle(a) || a.slug} className="w-full h-full object-cover" />
                   </div>
                 </td>
-                <td className="px-6 py-4">{a.title}</td>
+                <td className="px-6 py-4">{resolveTitle(a)}</td>
                 <td className="px-6 py-4">{a.slug}</td>
-                <td className="px-6 py-4">{(a.tags||[]).join(', ')}</td>
+                <td className="px-6 py-4">{resolveTags(a).join(', ')}</td>
                 <td className="px-6 py-4">{fmt(a.publishedAt || a.createdAt)}</td>
-                <td className="px-6 py-4">{a.status}</td>
+                <td className="px-6 py-4">{resolveStatus(a.status)}</td>
                 <td className="px-6 py-4">
                   <Link to={`/articles/edit/${a.slug}`} className="font-medium text-blue-600 hover:underline">Edit</Link>
                 </td>
               </tr>
             ))}
             {rows.length === 0 && (
-              <tr><td colSpan={7} className="px-6 py-8 text-center text-black">Belum ada artikel.</td></tr>
+              <tr><td colSpan={7} className="px-6 py-8 text-center text-black">No articles yet.</td></tr>
             )}
           </tbody>
         </table>
