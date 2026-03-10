@@ -5,19 +5,80 @@ import { verifyFirebaseIdToken } from '../middleware/auth.js';
 
 const router = Router();
 
+function normalizeStatus(status, fallback = "Draft") {
+  const value = String(status || "").toLowerCase();
+  if (value === "published") return "Published";
+  if (value === "draft") return "Draft";
+  return fallback;
+}
+
+function normalizeLocalizedText(value, fallback = "") {
+  if (typeof value === "string") return value.trim();
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return {
+      en: typeof value.en === "string" ? value.en.trim() : "",
+      id: typeof value.id === "string" ? value.id.trim() : "",
+    };
+  }
+  return fallback;
+}
+
+function normalizeTags(value, fallback = []) {
+  if (Array.isArray(value)) {
+    return value.filter((tag) => typeof tag === "string" && tag.trim() !== "");
+  }
+
+  if (value && typeof value === "object") {
+    return {
+      en: Array.isArray(value.en)
+        ? value.en.filter((tag) => typeof tag === "string" && tag.trim() !== "")
+        : [],
+      id: Array.isArray(value.id)
+        ? value.id.filter((tag) => typeof tag === "string" && tag.trim() !== "")
+        : [],
+    };
+  }
+
+  return fallback;
+}
+
 // CREATE
 router.post('/', verifyFirebaseIdToken, async (req, res) => {
   try {
-    const { slug, title, description = "", coverUrl = "", tags = [], status = "Draft", content = "" } = req.body;
+    const {
+      slug,
+      title,
+      description = "",
+      coverUrl = "",
+      tags = [],
+      status = "Draft",
+      body,
+      content = "",
+    } = req.body;
 
     if (!slug || !title) return res.status(400).json({ message: 'slug & title required' });
 
     const exist = await Article.findOne({ slug });
     if (exist) return res.status(409).json({ message: 'Slug sudah dipakai' });
 
-    const publishedAt = (status === "Published") ? new Date() : null;
+    const normalizedTitle = normalizeLocalizedText(title);
+    const normalizedDescription = normalizeLocalizedText(description);
+    const normalizedBody = normalizeLocalizedText(body ?? content);
+    const normalizedTags = normalizeTags(tags);
+    const normalizedStatus = normalizeStatus(status);
+    const publishedAt = normalizedStatus === "Published" ? new Date() : null;
 
-    const doc = await Article.create({ slug, title, description, coverUrl, tags, status, publishedAt, content });
+    const doc = await Article.create({
+      slug,
+      title: normalizedTitle,
+      description: normalizedDescription,
+      coverUrl,
+      tags: normalizedTags,
+      status: normalizedStatus,
+      publishedAt,
+      body: normalizedBody,
+      content: normalizedBody,
+    });
     res.status(201).json(doc);
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -29,9 +90,9 @@ router.post('/', verifyFirebaseIdToken, async (req, res) => {
 router.get('/', async (req, res) => {
   const { status } = req.query;
   const filter = {};
-  if (status) filter.status = status;
+  if (status) filter.status = normalizeStatus(status);
   const rows = await Article.find(filter)
-    .select('slug title description coverUrl tags status publishedAt createdAt')
+    .select('slug title description coverUrl tags status publishedAt createdAt body content')
     .sort({ publishedAt: -1, createdAt: -1 })
     .lean();
   res.json(rows);
@@ -62,21 +123,29 @@ router.put('/:slug', verifyFirebaseIdToken, async (req, res) => {
       coverUrl = current.coverUrl,
       tags = current.tags,
       status = current.status,
+      body = current.body ?? current.content,
       content = current.content,
       slug: incomingSlug, // abaikan
     } = req.body;
 
     let publishedAt = current.publishedAt;
-    const toPublished = current.status !== "Published" && status === "Published";
+    const normalizedTitle = normalizeLocalizedText(title, current.title);
+    const normalizedDescription = normalizeLocalizedText(description, current.description);
+    const normalizedBody = normalizeLocalizedText(body ?? content, current.body ?? current.content);
+    const normalizedTags = normalizeTags(tags, current.tags);
+    const normalizedStatus = normalizeStatus(status, current.status);
+    const toPublished = current.status !== "Published" && normalizedStatus === "Published";
     if (toPublished && !publishedAt) publishedAt = new Date();
+    if (normalizedStatus !== "Published") publishedAt = null;
 
-    current.title = title;
-    current.description = description;
+    current.title = normalizedTitle;
+    current.description = normalizedDescription;
     current.coverUrl = coverUrl;
-    current.tags = tags;
-    current.status = status;
+    current.tags = normalizedTags;
+    current.status = normalizedStatus;
     current.publishedAt = publishedAt;
-    current.content = content;
+    current.body = normalizedBody;
+    current.content = normalizedBody;
 
     await current.save();
     res.json(current);
