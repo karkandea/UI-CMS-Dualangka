@@ -4,10 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   doc, getDoc, setDoc, collection, getDocs, serverTimestamp, deleteDoc
 } from "firebase/firestore";
-import {
-  ref as sref, uploadBytes, getDownloadURL, deleteObject, ref, listAll
-} from "firebase/storage";
-import { db, storage } from "../../firebase";
+import { db } from "../../firebase";
 import { Icon } from "@iconify/react";
 
 const MAX_IMAGE_SIZE_MB = 2;
@@ -22,24 +19,32 @@ const fileExt = (f) => (f?.name?.split(".").pop() || "jpg").toLowerCase();
  * Upload helper
  */
 const uploadFile = async (path, file) => {
-  const r = sref(storage, path);
-  await uploadBytes(r, file);
-  return await getDownloadURL(r);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "dualangka_preset");
+  
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dow7nf1no/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+  
+  const data = await res.json();
+  if (!data.secure_url) {
+    throw new Error(data.error?.message || "Cloudinary upload failed");
+  }
+  return data.secure_url;
 };
 
 /**
  * Delete by https:// URL yang sudah disimpan di Firestore
- * Firebase v9 modular mendukung `ref(storage, url)` untuk https:// dan gs://
+ * Disable deletion for now on Cloudinary (requires API Secret from backend)
  */
 const deleteByUrl = async (url) => {
   if (!url) return;
-  try {
-    const r = ref(storage, url);
-    await deleteObject(r);
-  } catch (e) {
-    // Kalau file sudah tidak ada, biarkan lewat
-    if (import.meta.env.DEV) console.warn("Delete skipped:", e?.code || e?.message);
-  }
+  console.warn("Delete skipped: Cloudinary deletion from frontend is disabled for security");
 };
 
 const EditWork = () => {
@@ -82,15 +87,8 @@ const EditWork = () => {
 
 
   const deleteFolderRecursive = async (folderPath) => {
-  const dirRef = sref(storage, folderPath);
-  const { items, prefixes } = await listAll(dirRef);
-  // hapus file
-  await Promise.all(items.map((itemRef) => deleteObject(itemRef).catch(() => {})));
-  // rekursif ke subfolder
-  for (const p of prefixes) {
-    await deleteFolderRecursive(p.fullPath);
-  }
-};
+    console.warn("Folder deletion skipped: Cloudinary deletion from frontend is disabled for security");
+  };
 
 const handleDelete = async () => {
   if (deleting) return;

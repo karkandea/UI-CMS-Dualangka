@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { doc, setDoc, serverTimestamp, collection, getDocs } from "firebase/firestore";
-import {ref as sref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage, db } from "../../firebase";
+import { db } from "../../firebase";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
 
@@ -296,9 +295,24 @@ const onSubmit = async (e) => {
   const fileExt = (f) => (f?.name?.split(".").pop() || "jpg").toLowerCase();
 
 const uploadFile = async (path, file) => {
-  const r = sref(storage, path);
-  await uploadBytes(r, file);
-  return await getDownloadURL(r);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "dualangka_preset");
+  // Optionally use the path to set public_id or keep it auto-generated
+  
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dow7nf1no/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+  
+  const data = await res.json();
+  if (!data.secure_url) {
+    throw new Error(data.error?.message || "Cloudinary upload failed");
+  }
+  return data.secure_url;
 };
 
 

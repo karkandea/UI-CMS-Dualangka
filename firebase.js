@@ -2,7 +2,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore"; // this file already knows how to import
 
@@ -23,7 +22,6 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const firestore = getFirestore(app)
 export const db = getFirestore(app);
-export const storage = getStorage(app);
 export const auth = getAuth(app);
 
 window.auth = auth;

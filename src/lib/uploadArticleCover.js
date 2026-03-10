@@ -1,11 +1,17 @@
-// src/lib/uploadArticleCover.js
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { storage } from '../../firebase';
-
 export async function uploadArticleCover(slug, file) {
-  const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-  const path = `articles/${slug}.${ext}`;
-  const objectRef = ref(storage, path);
-  const snap = await uploadBytes(objectRef, file, { contentType: file.type });
-  return getDownloadURL(snap.ref);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "dualangka_preset");
+  
+  // Nembak ke endpoint Cloudinary
+  const res = await fetch(
+    "https://api.cloudinary.com/v1_1/dow7nf1no/image/upload",
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+  
+  const data = await res.json();
+  return data.secure_url;
 }
