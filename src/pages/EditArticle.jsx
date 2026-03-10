@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../lib/api';
 import { uploadArticleCover } from '../lib/uploadArticleCover';
+import { Icon } from '@iconify/react';
 
 const REMOTE_API_BASE = 'https://cms-dualangka.vercel.app/api';
 
@@ -91,9 +92,10 @@ export default function EditArticle() {
       slugState.trim() &&
       title.en.trim() &&
       body.en.trim() &&
-      !saving
+      !saving &&
+      !deleting
     );
-  }, [slugState, title, body, saving]);
+  }, [slugState, title, body, saving, deleting]);
 
   const shouldShowFallback = (value) => {
     if (activeLang !== 'id') return false;
@@ -186,12 +188,10 @@ export default function EditArticle() {
         body: payload,
       });
 
-      alert('Changes saved');
       navigate('/articles/manage', { replace: true });
     } catch (e) {
       console.error(e);
       alert(e.message || 'Failed to save article');
-    } finally {
       setSaving(false);
     }
   }
@@ -202,144 +202,308 @@ export default function EditArticle() {
     setDeleting(true);
     try {
       await apiFetch(`${REMOTE_API_BASE}/articles/${slug}`, { method: 'DELETE' });
-      alert('Article deleted');
       navigate('/articles/manage', { replace: true });
     } catch (e) {
       console.error(e);
       alert(e.message || 'Failed to delete article');
-    } finally {
       setDeleting(false);
     }
   }
 
-  if (loading) return <p className="text-sm text-black">Loading…</p>;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-slate-500">
+        <Icon icon="eos-icons:loading" className="text-4xl mb-4 text-blue-600" />
+        <p>Memuat artikel...</p>
+      </div>
+    );
+  }
 
   return (
-    <form onSubmit={onSave} className="max-w-3xl mx-auto p-4 text-black">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold text-black">Edit Article</h1>
-        <div className="flex gap-2">
+    <div className="animate-in fade-in duration-500 pb-20">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <button 
+            type="button" 
+            onClick={() => navigate('/articles/manage')}
+            className="text-slate-500 hover:text-slate-900 flex items-center gap-1 text-sm font-medium mb-2 transition-colors"
+          >
+            <Icon icon="mdi:arrow-left" className="text-lg" />
+            Back to Articles
+          </button>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Edit Article</h1>
+          <p className="text-sm text-slate-500 mt-1">Update your article content and configurations.</p>
+        </div>
+        <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onDelete}
             disabled={deleting}
-            className="px-4 py-2 rounded bg-red-600 text-white disabled:opacity-60"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-xl font-medium hover:bg-red-50 transition-colors shadow-sm disabled:opacity-50"
           >
-            {deleting ? 'Deleting…' : 'Delete'}
+            {deleting ? (
+              <Icon icon="eos-icons:loading" className="text-xl animate-spin" />
+            ) : (
+              <Icon icon="solar:trash-bin-trash-bold" className="text-xl" />
+            )}
+            {deleting ? 'Deleting...' : 'Delete'}
           </button>
+
           <button
-            type="submit"
+            onClick={onSave}
             disabled={!canSubmit}
-            className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? (
+              <Icon icon="eos-icons:loading" className="text-xl animate-spin" />
+            ) : (
+             <Icon icon="solar:diskette-bold" className="text-xl" />
+            )}
+            {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </div>
 
-      <label className="block text-sm mb-1 text-black">Slug</label>
-      <input
-        className="w-full border rounded p-2 mb-4 bg-gray-100"
-        value={slugState}
-        onChange={(e)=>setSlugState(e.target.value)}
-        disabled
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <Icon icon="solar:document-text-bold-duotone" className="text-xl text-blue-500" />
+                Article Content
+              </h2>
+              <div className="inline-flex bg-slate-200/50 p-1 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setActiveLang('en')}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${activeLang === 'en' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveLang('id')}
+                  className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${activeLang === 'id' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                >
+                  Indonesia
+                </button>
+              </div>
+            </div>
 
-      <div className="mb-4">
-        <span className="block text-sm font-medium text-black mb-2">Content language</span>
-        <div className="inline-flex rounded border overflow-hidden">
-          {['en', 'id'].map(lang => (
-            <button
-              type="button"
-              key={lang}
-              onClick={()=>setActiveLang(lang)}
-              className={`px-4 py-2 text-sm font-semibold ${activeLang === lang ? 'bg-blue-600 text-white' : 'bg-white text-black'}`}
-            >
-              {lang.toUpperCase()}
-            </button>
-          ))}
+            <div className="p-6 space-y-6">
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-colors"
+                  value={title[activeLang]}
+                  onChange={(e) => handleTitleChange(activeLang, e.target.value)}
+                  placeholder={activeLang === 'en' ? 'Enter an engaging title...' : 'Masukkan judul artikel yang menarik...'}
+                />
+                {shouldShowFallback(title[activeLang]) && (
+                  <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                    <Icon icon="solar:info-circle-bold" /> {FALLBACK_NOTICE}
+                  </p>
+                )}
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Summary / Description
+                </label>
+                <textarea
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-colors"
+                  rows={3}
+                  value={description[activeLang]}
+                  onChange={(e) => handleDescriptionChange(activeLang, e.target.value)}
+                  placeholder={activeLang === 'en' ? 'A short teaser about this article...' : 'Ringkasan singkat tentang artikel ini...'}
+                />
+                {shouldShowFallback(description[activeLang]) && (
+                  <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                    <Icon icon="solar:info-circle-bold" /> {FALLBACK_NOTICE}
+                  </p>
+                )}
+              </div>
+
+              {/* Body */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Body Content <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-colors font-mono"
+                  rows={15}
+                  value={body[activeLang]}
+                  onChange={(e) => handleBodyChange(activeLang, e.target.value)}
+                  placeholder={activeLang === 'en' ? 'Write the main content here (HTML / Markdown supported)...' : 'Tulis konten utama di sini...'}
+                />
+                {shouldShowFallback(body[activeLang]) && (
+                  <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                    <Icon icon="solar:info-circle-bold" /> {FALLBACK_NOTICE}
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-slate-500">Supports basic formatting if processed on the frontend.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Meta & Settings */}
+        <div className="space-y-6">
+          
+          {/* Publishing */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Icon icon="solar:settings-bold-duotone" className="text-lg text-slate-400" />
+              Publishing
+            </h3>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                URL Slug <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full bg-slate-100 border border-slate-200 text-slate-500 text-sm rounded-xl block p-2.5 font-mono cursor-not-allowed"
+                value={slugState}
+                disabled
+              />
+              <p className="mt-1.5 text-xs text-slate-500 flex items-center gap-1">
+                <Icon icon="solar:locked-bold" className="text-slate-400" /> Cannot edit slug
+              </p>
+            </div>
+
+            <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+              <div className="relative flex items-center">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={isPublished} 
+                  onChange={(e) => setIsPublished(e.target.checked)} 
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </div>
+              <div>
+                <span className="block text-sm font-medium text-slate-900">Publish Article</span>
+                <span className="block text-xs text-slate-500">Make it visible to the public</span>
+              </div>
+            </label>
+          </div>
+
+          {/* Media */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Icon icon="solar:gallery-bold-duotone" className="text-lg text-slate-400" />
+              Cover Image
+            </h3>
+            
+            {(coverPreview || coverUrl) ? (
+              <div className="relative rounded-xl overflow-hidden group border border-slate-200 mb-4 aspect-[16/9]">
+                <img 
+                  src={coverPreview || coverUrl} 
+                  alt="Cover Preview" 
+                  className="w-full h-full object-cover" 
+                  onError={(e)=>{ e.currentTarget.src = '/fallback.jpg'; }}
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white text-sm font-medium flex items-center gap-1">
+                    <Icon icon="solar:pen-bold" /> Change Image
+                  </span>
+                </div>
+                <input 
+                  type="file" 
+                  accept={TYPES.join(',')} 
+                  onChange={onCoverChange} 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                  title="Change cover"
+                />
+              </div>
+            ) : (
+              <div className="relative flex flex-col items-center justify-center w-full h-40 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors mb-4">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Icon icon="solar:cloud-upload-linear" className="w-8 h-8 text-slate-400 mb-2" />
+                  <p className="text-sm text-slate-500 font-medium">Click to upload cover</p>
+                  <p className="text-xs text-slate-400 mt-1">PNG, JPG or WEBP (Max {MAX_MB}MB)</p>
+                </div>
+                <input 
+                  type="file" 
+                  accept={TYPES.join(',')} 
+                  onChange={onCoverChange} 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                />
+              </div>
+            )}
+            
+            {coverFile && (
+              <div className="flex items-center justify-between text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                <span className="truncate pr-2">{coverFile.name}</span>
+                <button type="button" onClick={() => { setCoverFile(null); setCoverPreview(''); }} className="text-red-500 hover:text-red-700 flex-shrink-0">
+                  <Icon icon="solar:trash-bin-trash-bold" className="text-sm" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Tags */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Icon icon="solar:tag-bold-duotone" className="text-lg text-slate-400" />
+              Tags <span className="text-xs normal-case text-slate-400 font-normal">({activeLang.toUpperCase()})</span>
+            </h3>
+            
+            <div className="flex gap-2 mb-3">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <Icon icon="solar:hashtag-bold" className="text-slate-400" />
+                </div>
+                <input
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block ps-9 p-2.5 transition-colors"
+                  value={tagInput[activeLang]}
+                  onChange={(e) => setTagInput(prev => ({ ...prev, [activeLang]: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+                  placeholder="Add a tag..."
+                />
+              </div>
+              <button 
+                type="button" 
+                onClick={addTag}
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors border border-slate-200"
+              >
+                Add
+              </button>
+            </div>
+            
+            {tags[activeLang].length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {tags[activeLang].map((t, i) => (
+                  <span key={`${t}-${i}`} className="inline-flex items-center gap-1.5 px-3 py-1 text-sm rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                    {t}
+                    <button 
+                      type="button" 
+                      onClick={() => removeTag(activeLang, i)}
+                      className="text-blue-400 hover:text-blue-800 focus:outline-none"
+                    >
+                      <Icon icon="solar:close-circle-bold" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400 italic">No tags added yet.</p>
+            )}
+            
+            {shouldShowFallback(tags[activeLang]) && (
+              <p className="mt-3 text-xs text-amber-600 flex items-center gap-1">
+                <Icon icon="solar:info-circle-bold" /> {FALLBACK_NOTICE}
+              </p>
+            )}
+          </div>
+          
         </div>
       </div>
-
-      <label className="block text-sm mb-1 text-black">Title ({activeLang.toUpperCase()})</label>
-      <input
-        className="w-full border rounded p-2 mb-2"
-        value={title[activeLang]}
-        onChange={(e)=>handleTitleChange(activeLang, e.target.value)}
-        placeholder={activeLang === 'en' ? 'Article title in English' : 'Judul artikel dalam Bahasa Indonesia'}
-        required={activeLang === 'en'}
-      />
-      {shouldShowFallback(title[activeLang]) && (
-        <p className="text-xs text-gray-500 mb-4">{FALLBACK_NOTICE}</p>
-      )}
-
-      <label className="block text-sm mb-1 text-black">Description ({activeLang.toUpperCase()})</label>
-      <textarea
-        className="w-full border rounded p-2 mb-2"
-        rows={4}
-        value={description[activeLang]}
-        onChange={(e)=>handleDescriptionChange(activeLang, e.target.value)}
-        placeholder={activeLang === 'en' ? 'Optional summary in English' : 'Ringkasan opsional dalam Bahasa Indonesia'}
-      />
-      {shouldShowFallback(description[activeLang]) && (
-        <p className="text-xs text-gray-500 mb-4">{FALLBACK_NOTICE}</p>
-      )}
-
-      <label className="block text-sm mb-1 text-black">Body ({activeLang.toUpperCase()})</label>
-      <textarea
-        className="w-full border rounded p-2 mb-2"
-        rows={10}
-        value={body[activeLang]}
-        onChange={(e)=>handleBodyChange(activeLang, e.target.value)}
-        placeholder={activeLang === 'en' ? 'Main content in English (plain text/Markdown/HTML)' : 'Konten utama dalam Bahasa Indonesia'}
-        required={activeLang === 'en'}
-      />
-      {shouldShowFallback(body[activeLang]) && (
-        <p className="text-xs text-gray-500 mb-4">{FALLBACK_NOTICE}</p>
-      )}
-
-      <label className="block text-sm mb-1 text-black">Tags ({activeLang.toUpperCase()})</label>
-      <div className="flex gap-2 mb-2">
-        <input
-          className="flex-1 border rounded p-2"
-          value={tagInput[activeLang]}
-          onChange={(e)=>setTagInput(prev => ({ ...prev, [activeLang]: e.target.value }))}
-          onKeyDown={(e)=>{ if (e.key === 'Enter') { e.preventDefault(); addTag(); }}}
-          placeholder={activeLang === 'en' ? 'Type a tag and press Enter' : 'Tulis tag dan tekan Enter'}
-        />
-        <button type="button" onClick={addTag} className="px-3 py-2 border rounded">Add</button>
-      </div>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {tags[activeLang].map((t, i) => (
-          <span key={`${t}-${i}`} className="px-3 py-1 text-sm rounded-full bg-blue-100 text-black">
-            {t}
-            <button type="button" className="ml-2 font-bold" onClick={()=>removeTag(activeLang, i)}>×</button>
-          </span>
-        ))}
-      </div>
-      {shouldShowFallback(tags[activeLang]) && (
-        <p className="text-xs text-gray-500 mb-4">{FALLBACK_NOTICE}</p>
-      )}
-
-      <label className="block text-sm mb-1 text-black">Status</label>
-      <label className="inline-flex items-center gap-2 mb-4">
-        <input type="checkbox" checked={isPublished} onChange={(e)=>setIsPublished(e.target.checked)} />
-        <span className="text-black">Publish immediately</span>
-      </label>
-
-      <div className="mb-2">
-        <label className="block text-sm mb-1 text-black">Cover</label>
-        {(coverPreview || coverUrl) && (
-          <img
-            src={coverPreview || coverUrl}
-            alt=""
-            className="w-full max-w-xl h-56 object-cover rounded mb-2"
-            onError={(event)=>{ event.currentTarget.src = '/fallback.jpg'; }}
-          />
-        )}
-        <input type="file" accept={TYPES.join(',')} onChange={onCoverChange} />
-        <p className="text-xs text-black mt-1">Maximum {MAX_MB}MB. JPG/PNG/WEBP/GIF.</p>
-      </div>
-    </form>
+    </div>
   );
 }

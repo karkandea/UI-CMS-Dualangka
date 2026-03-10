@@ -320,357 +320,352 @@ const uploadFile = async (path, file) => {
 
 
   return (
-    <>
-      <form className="max-w-sm mx-auto" onSubmit={onSubmit}>
-        {/* Title */}
-        <div className="mb-5">
-          <label
-            htmlFor="title"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+    <div className="animate-in fade-in duration-500 pb-20">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <button 
+            type="button" 
+            onClick={() => navigate('/work/manage')}
+            className="text-slate-500 hover:text-slate-900 flex items-center gap-1 text-sm font-medium mb-2 transition-colors"
           >
-            Title
-          </label>
-          <input
-            type="text"
-            id="title" // unique
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500
-                       focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
-                       dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Masukan Judul Project"
-            required
-          />
+            <Icon icon="mdi:arrow-left" className="text-lg" />
+            Back to Works
+          </button>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Add New Work</h1>
+          <p className="text-sm text-slate-500 mt-1">Create a new portfolio entry.</p>
         </div>
-
-        {/* Slug (manual) */}
-        <div className="mb-5">
-          <label
-            htmlFor="slug"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        <div className="flex items-center gap-3">
+          <button 
+            type="button"
+            onClick={() => navigate('/work/manage')}
+            className="px-5 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
           >
-            Slug
-          </label>
-          <input
-            type="text"
-            id="slug" // unique
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500
-                       focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
-                       dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="contoh: project-website"
-            required
-          />
-        </div>
-
-        {/* Deskripsi */}
-        <div className="mb-5">
-          <label
-            htmlFor="description"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            Cancel
+          </button>
+          <button
+            onClick={onSubmit}
+            disabled={saving}
+            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Deskripsi
-          </label>
-          <input
-            type="text"
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500
-                       focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600
-                       dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Masukan Deskripsi Project"
-            required
-          />
+            {saving ? (
+              <Icon icon="eos-icons:loading" className="text-xl animate-spin" />
+            ) : (
+             <Icon icon="solar:diskette-bold" className="text-xl" />
+            )}
+            {saving ? 'Saving...' : 'Save Draft & Close'}
+          </button>
         </div>
+      </div>
 
-        {/* TAGS (history from Firestore .tag as requested) */}
-        <div ref={boxRef} className="mb-5 relative">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Tags
-          </label>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <Icon icon="solar:document-text-bold-duotone" className="text-xl text-blue-500" />
+                Work Details
+              </h2>
+            </div>
 
-          <input
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onFocus={() => setOpen(true)}
-            onKeyDown={onKeyDown}
-            placeholder="Ketik lalu Enter…"
-            className="w-full rounded-lg border p-2.5 text-black"
-          />
+            <div className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-colors"
+                  placeholder="Enter project title..."
+                  required
+                />
+              </div>
 
-          {/* chips */}
-          <div className="mt-3 flex flex-wrap gap-2">
-            {tags.map((t, i) => (
-              <span
-                key={t}
-                className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 flex items-center gap-2"
-              >
-                {t}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Slug <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-colors font-mono"
+                  placeholder="e.g. project-website"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block p-3 transition-colors"
+                  placeholder="Tell us about this project..."
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                <Icon icon="solar:gallery-wide-bold-duotone" className="text-xl text-blue-500" />
+                Content Blocks (Images)
+              </h2>
+              <span className="text-sm font-medium text-slate-500 bg-slate-200/50 px-3 py-1 rounded-lg">
+                Used: {imagesUsed} / 10
+              </span>
+            </div>
+
+            <div className="p-6">
+              <div className="flex flex-col sm:flex-row gap-3 mb-6">
                 <button
                   type="button"
-                  onClick={() => removeTag(i)}
-                  className="font-bold"
+                  onClick={() => addBlock("single")}
+                  disabled={remaining < 1}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
-                  ×
+                  <Icon icon="solar:gallery-bold" className="text-lg" />
+                  Add Single Image (16:9)
                 </button>
-              </span>
-            ))}
-          </div>
-
-          {/* dropdown suggestions (absolute) */}
-          {open && suggestions.length > 0 && (
-            <ul className="absolute mt-2 max-h-56 overflow-auto text-black rounded-md border bg-white shadow z-10 w-full">
-              {suggestions.map((s) => (
-                <li
-                  key={s}
-                  onMouseDown={() => addTag(s)} // keep onMouseDown trick
-                  className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                <button
+                  type="button"
+                  onClick={() => addBlock("pair")}
+                  disabled={remaining < 2}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
-                  {s}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                  <Icon icon="solar:gallery-wide-bold" className="text-lg" />
+                  Add Pair (2 Columns)
+                </button>
+              </div>
 
-        {/* Publish switch (controlled) */}
-        <label className="inline-flex items-center cursor-pointer mb-6">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            checked={isPublished}
-            onChange={(e) => setIsPublished(e.target.checked)}
-          />
-          <div
-            className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
-                       dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700
-                       peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-                       peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px]
-                       after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                       dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
-          ></div>
-          <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Publish</span>
-        </label>
-
-        {/* Cover upload (preview) */}
-        <div className="mb-5">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Cover
-          </label>
-
-          {coverPreview && (
-            <div className="mb-3 relative group">
-              {/* gambar */}
-              <img
-                src={coverPreview}
-                alt="Cover preview"
-                className="w-full h-64 object-cover rounded-lg border"
-              />
-
-              {/* blanket gelap saat hover */}
-              <div className="absolute inset-0 rounded-lg bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10" />
-
-              {/* tombol delete di tengah */}
-              <button
-                type="button"
-                onClick={clearCover}
-                className="absolute inset-0 z-20 flex items-center justify-center cursor-pointer"
-                aria-label="Remove cover image"
-                title="Remove cover image"
-              >
-                <Icon className="text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 drop-shadow" icon="material-symbols:delete" />
-              </button>
-            </div>
-          )}
-
-
-          <label
-            htmlFor="dropzone-file"
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed
-                       rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100
-                       dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-          >
-            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg
-                className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 16"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                />
-              </svg>
-              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                <span className="font-semibold">Click to upload</span> or drag and drop
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                JPG, PNG, WEBP, GIF (Max {MAX_IMAGE_SIZE_MB}MB)
-              </p>
-            </div>
-            <input
-              id="dropzone-file"
-              type="file"
-              accept={ALLOWED_TYPES.join(",")}
-              onChange={onCoverChange}
-              className="hidden"
-              ref={fileInputRef}
-            />
-          </label>
-        </div>
-
-        {/* Content Blocks header + toolbar (text fixes only) */}
-        <div className="flex-row items-center justify-center w-full mt-8">
-          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Content Blocks — max 10 images
-          </label>
-
-
-            <button
-  type="button"
-  onClick={() => addBlock("single")}
-  disabled={remaining < 1}
-  className="flex w-full items-center justify-center gap-1.5 py-2.5 px-5 me-2 mb-2 text-sm font-medium
-             text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100
-             hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 disabled:opacity-50 disabled:cursor-not-allowed
-             dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
->
-  <Icon icon="material-symbols:exposure-plus-1" />
-  Single (16:9)
-</button>
-
-<button
-  type="button"
-  onClick={() => addBlock("pair")}
-  disabled={remaining < 2}
-  className="flex w-full items-center justify-center gap-1.5 py-2.5 px-5 me-2 mb-2 text-sm font-medium
-             text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100
-             hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 disabled:opacity-50 disabled:cursor-not-allowed
-             dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
->
-  <Icon icon="material-symbols:exposure-plus-1" />
-  Pair (2-column)
-</button>
-
-<div className="mt-2 text-xs text-gray-500">
-  Images used: {imagesUsed} / 10
-</div>
-
-            <div className="space-y-6 mt-6">
-              {blocks.map((block, blockIdx) => (
-                <div 
-                key={block.id} 
-                className={`block-card relative border rounded-lg p-4 bg-white dark:bg-gray-800 transition
-              ${dragId === block.id ? "opacity-60 ring-2 ring-blue-500 scale-[.98]" : ""}
-              ${overId === block.id ? "ring-2 ring-dashed ring-gray-400" : ""}`}
-                  draggable
-                  onDragStart={(e) => onDragStartBlock(e, block.id)}
-                  onDragOver={(e) => e.preventDefault()}      // wajib biar bisa terima drag
-                  onDragEnter={() => onDragEnterBlock(block.id)}
-                  onDragLeave={() => setOverId(null)}
-                  onDrop={() => setOverId(null)}
-                >
+              <div className="space-y-6">
+                {blocks.length === 0 && (
+                  <div className="text-center py-10 bg-slate-50 border border-slate-200 border-dashed rounded-xl text-slate-500">
+                    <Icon icon="solar:gallery-add-bold-duotone" className="mx-auto text-4xl mb-3 text-slate-400" />
+                    <p className="text-sm">No image content yet.</p>
+                    <p className="text-xs mt-1">Add a single or paired block above.</p>
+                  </div>
+                )}
+              
+                {blocks.map((block, blockIdx) => (
                   <div 
-                  className="absolute left-2 top-2 z-30 text-gray-500 cursor-grab select-none
-                            bg-white/70 backdrop-blur px-2 rounded"
-                  title="Drag to reorder"
-                  draggable
-                  onDragStart={() => onDragStartBlock(block.id)}
-                  >⋮⋮</div>
-                    {/* tombol Cancel block */}
-                  <button
-                    type="button"
-                    onClick={() => removeBlock(block.id)}
-                    className="absolute right-3 top-3 z-30 text-gray-400 hover:text-red-500"
-                    title="Remove this block"
+                    key={block.id} 
+                    className={`block-card relative border rounded-xl p-4 bg-white transition-all shadow-sm
+                    ${dragId === block.id ? "opacity-60 ring-2 ring-blue-500 scale-[.98]" : "border-slate-200"}
+                    ${overId === block.id ? "ring-2 ring-dashed ring-slate-400" : ""}`}
+                    draggable
+                    onDragStart={(e) => onDragStartBlock(e, block.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDragEnter={() => onDragEnterBlock(block.id)}
+                    onDragLeave={() => setOverId(null)}
+                    onDrop={() => setOverId(null)}
                   >
-                    Cancel
-                  </button>
+                    <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-2">
+                       <div 
+                          className="flex items-center gap-2 text-slate-500 cursor-grab select-none hover:text-slate-800 transition-colors"
+                          title="Drag to reorder"
+                          draggable
+                          onDragStart={() => onDragStartBlock(block.id)}
+                        >
+                          <Icon icon="solar:hamburger-menu-linear" className="text-lg" />
+                          <span className="text-xs font-semibold uppercase tracking-wider">{block.type === 'pair' ? 'Pair Block' : 'Single Block'}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeBlock(block.id)}
+                          className="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded-md transition-colors"
+                          title="Remove block"
+                        >
+                          <Icon icon="solar:trash-bin-trash-bold" className="text-sm" />
+                        </button>
+                    </div>
 
-                  {/*grid slot upload*/}
-                  <div className={`grid ${block.type === 'pair' ? 'grid-cols-2 gap-4' : ''}`}>
-                    {block.images.map((img, imgIdx) => (
-                      <label 
-                        key={imgIdx}
-                        draggable={false}
-                        className="relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-                                {img ? (
-          <>
-            <img
-              src={img.preview}
-              alt=""
-              className="absolute inset-0 object-cover w-full h-full rounded-lg pointer-events-none" // label yg nerima click
-            />
-            <div className="absolute inset-0 rounded-lg bg-black/45 opacity-0 hover:opacity-100 transition-opacity duration-200 z-10" />
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                removeImage(block.id, imgIdx);
-              }}
-              className="absolute inset-0 z-20 flex items-center justify-center cursor-pointer"
-              title="Remove image"
-            >
-              <Icon icon="material-symbols:delete" className="text-white text-3xl" />
-            </button>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center text-gray-500">
-            <Icon icon="material-symbols:add-photo-alternate-outline" className="text-3xl mb-2" />
-            <p className="text-sm">Upload Image</p>
-          </div>
-        )}
-
-        <input
-          type="file"
-          className="hidden"
-          accept={ALLOWED_TYPES.join(",")}
-          onChange={(e) => handleImageUpload(e, block.id, imgIdx)}
-        />
-      </label>
-    ))}
-  </div>
-                </div>
-              ))}
+                    <div className={`grid gap-4 ${block.type === 'pair' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
+                      {block.images.map((img, imgIdx) => (
+                        <label 
+                          key={imgIdx}
+                          draggable={false}
+                          className="relative flex flex-col items-center justify-center w-full aspect-[16/9] sm:h-56 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors overflow-hidden group"
+                        >
+                          {img ? (
+                            <>
+                              <img
+                                src={img.preview}
+                                alt="Block Preview"
+                                className="absolute inset-0 object-cover w-full h-full pointer-events-none" 
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                                <span className="text-white text-sm font-medium flex items-center gap-1">
+                                  <Icon icon="solar:pen-bold" /> Change Image
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  removeImage(block.id, imgIdx);
+                                }}
+                                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-700 z-20"
+                                title="Remove image"
+                              >
+                                <Icon icon="solar:trash-bin-trash-bold" />
+                              </button>
+                            </>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center text-slate-500 p-4 text-center">
+                              <Icon icon="solar:gallery-add-linear" className="text-3xl mb-2 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                              <p className="text-sm font-medium">Upload Image</p>
+                              <p className="text-xs text-slate-400 mt-1">Click or drag here</p>
+                            </div>
+                          )}
+                          <input
+                            type="file"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            accept={ALLOWED_TYPES.join(",")}
+                            onChange={(e) => handleImageUpload(e, block.id, imgIdx)}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-
-
-
-
+          </div>
         </div>
 
-        {/* Actions: single submit (status from switch) */}
-        <div className="flex flex-row gap-4 mt-8">
-          <button
-            type="submit"
-            disabled={saving}
-            aria-busy={saving}
-            className={`inline-flex items-center justify-center gap-2
-                        text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300
-                        font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center
-                        dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800
-                        disabled:opacity-60 disabled:cursor-not-allowed`}
-          >
-            {saving && (
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4A4 4 0 008 12H4z"/>
-              </svg>
+        {/* Right Column - Meta & Settings */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Icon icon="solar:settings-bold-duotone" className="text-lg text-slate-400" />
+              Publishing
+            </h3>
+            
+            <label className="flex items-center gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+              <div className="relative flex items-center">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={isPublished} 
+                  onChange={(e) => setIsPublished(e.target.checked)} 
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </div>
+              <div>
+                <span className="block text-sm font-medium text-slate-900">Publish Work</span>
+                <span className="block text-xs text-slate-500">Make it visible online</span>
+              </div>
+            </label>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Icon icon="solar:gallery-bold-duotone" className="text-lg text-slate-400" />
+              Cover Image
+            </h3>
+            
+            {coverPreview ? (
+              <div className="relative rounded-xl overflow-hidden group border border-slate-200 mb-4 aspect-[4/3]">
+                <img 
+                  src={coverPreview} 
+                  alt="Cover Preview" 
+                  className="w-full h-full object-cover" 
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                   <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); clearCover(); }}
+                      className="bg-red-600/90 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:bg-red-700 transition-colors"
+                    >
+                      <Icon icon="solar:trash-bin-trash-bold" /> Remove Image
+                    </button>
+                </div>
+              </div>
+            ) : (
+              <div className="relative flex flex-col items-center justify-center w-full aspect-[4/3] border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors mb-4 group">
+                <div className="flex flex-col items-center justify-center p-6 text-center text-slate-500">
+                  <Icon icon="solar:cloud-upload-linear" className="w-10 h-10 text-slate-400 mb-3 group-hover:text-blue-500 transition-colors" />
+                  <p className="text-sm font-medium text-slate-600">Click or drag cover here</p>
+                  <p className="text-xs text-slate-400 mt-2">JPG, PNG, WEBP (Max {MAX_IMAGE_SIZE_MB}MB)</p>
+                </div>
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  accept={ALLOWED_TYPES.join(',')} 
+                  onChange={onCoverChange} 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                />
+              </div>
             )}
-            {saving ? "Menyimpan..." : "Simpan"}
-          </button>
+          </div>
 
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+            <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <Icon icon="solar:tag-bold-duotone" className="text-lg text-slate-400" />
+              Tags
+            </h3>
+            
+            <div className="relative mb-4" ref={boxRef}>
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <Icon icon="solar:hashtag-bold" className="text-slate-400" />
+                </div>
+                <input
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onFocus={() => setOpen(true)}
+                  onKeyDown={onKeyDown}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block ps-9 p-3 transition-colors"
+                  placeholder="Ketik lalu Enter..."
+                />
+              </div>
+
+              {open && suggestions.length > 0 && (
+                <ul className="absolute mt-2 max-h-56 overflow-auto text-sm text-slate-700 bg-white rounded-xl border border-slate-200 shadow-lg z-50 w-full py-1">
+                  {suggestions.map((s) => (
+                    <li
+                      key={s}
+                      onMouseDown={(e) => { e.preventDefault(); addTag(s); }}
+                      className="px-4 py-2 cursor-pointer hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                    >
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              {tags.map((t, i) => (
+                <span key={`${t}-${i}`} className="inline-flex items-center gap-1.5 px-3 py-1 text-sm rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                  {t}
+                  <button 
+                    type="button" 
+                    onClick={() => removeTag(i)}
+                    className="text-blue-400 hover:text-blue-800 focus:outline-none"
+                  >
+                    <Icon icon="solar:close-circle-bold" />
+                  </button>
+                </span>
+              ))}
+              {tags.length === 0 && (
+                <p className="text-sm text-slate-400 italic">No tags added yet.</p>
+              )}
+            </div>
+          </div>
         </div>
-      </form>
-    </>
+      </div>
+    </div>
   );
 };
 
